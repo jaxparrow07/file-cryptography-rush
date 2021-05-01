@@ -102,20 +102,16 @@ public class FileCryptography extends AndroidNonvisibleComponent {
                  NoSuchPaddingException, InvalidKeyException {
 
 
-
-  		  byte[] tkey = okey.getBytes("UTF-8");
-		  MessageDigest sha = MessageDigest.getInstance("SHA-1");
-		  tkey = sha.digest(tkey);
-		  tkey = Arrays.copyOf(tkey, 16); // use only first 128 bit
+          File extStore = Environment.getExternalStorageDirectory();
 
           // Here you read the cleartext.
-          FileInputStream fis = new FileInputStream(ifile);
+          FileInputStream fis = new FileInputStream(extStore + ifile);
           // This stream write the encrypted text. This stream will be wrapped by
           // another stream.
-          FileOutputStream fos = new FileOutputStream(ofile);
+          FileOutputStream fos = new FileOutputStream(extStore + ofile);
 
           // Length is 16 byte
-          SecretKeySpec sks = new SecretKeySpec(tkey,"AES");
+          SecretKeySpec sks = new SecretKeySpec(okey.getBytes(),"AES");
           // Create cipher
           Cipher cipher = Cipher.getInstance("AES");
           cipher.init(Cipher.ENCRYPT_MODE, sks);
@@ -138,17 +134,13 @@ public class FileCryptography extends AndroidNonvisibleComponent {
    public void decrypt(String ifile, String ofile, String okey) throws IOException, NoSuchAlgorithmException,
                  NoSuchPaddingException, InvalidKeyException {
 
+          File extStore = Environment.getExternalStorageDirectory();
 
-  		  byte[] tkey = okey.getBytes("UTF-8");
-		  MessageDigest sha = MessageDigest.getInstance("SHA-1");
-		  tkey = sha.digest(tkey);
-		  tkey = Arrays.copyOf(tkey, 16); // use only first 128 bitit
+          FileInputStream fis = new FileInputStream(extStore + ifile);
 
-          FileInputStream fis = new FileInputStream(ifile);
+          FileOutputStream fos = new FileOutputStream(extStore + ofile);
 
-          FileOutputStream fos = new FileOutputStream(ofile);
-
-          SecretKeySpec sks = new SecretKeySpec(tkey,"AES");
+          SecretKeySpec sks = new SecretKeySpec(okey.getBytes(),"AES");
           Cipher cipher = Cipher.getInstance("AES");
           cipher.init(Cipher.DECRYPT_MODE, sks);
           CipherInputStream cis = new CipherInputStream(fis, cipher);
