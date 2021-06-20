@@ -4,6 +4,9 @@ import com.google.appinventor.components.annotations.*;
 import com.google.appinventor.components.common.ComponentCategory;
 import com.google.appinventor.components.common.PropertyTypeConstants;
 import com.google.appinventor.components.runtime.*;
+import com.google.appinventor.components.runtime.errors.YailRuntimeError;
+import com.google.appinventor.components.runtime.util.TextViewUtil;
+
 
 import android.os.Environment;
 
@@ -29,21 +32,12 @@ import javax.crypto.NoSuchPaddingException;
 public class FileCryptography extends AndroidNonvisibleComponent {
 
        public boolean abs_path = false;
-       public String f_key = "!z%C*F-JaNdRgUkX" // Default Key to avoid Exception
+       public String f_key = "!z%C*F-JaNdRgUkX"; // Default Key to avoid Exception
 
 	public FileCryptography(ComponentContainer container) {
 	super(container.$form());
 	}
 
-
-       @SimpleProperty(description = "")
-       public boolean UseAbsolutePath(){
-           return this.abs_path;
-       }
-
-       @DesignerProperty(
-       defaultValue = false,
-       editorType = PropertyTypeConstants.PROPERTY_TYPE_BOOLEAN)
        @SimpleProperty(description = "")
        public void UseAbsolutePath(boolean abs){
         this.abs_path = abs;
@@ -54,9 +48,7 @@ public class FileCryptography extends AndroidNonvisibleComponent {
            return this.abs_path;
        }
 
-       @DesignerProperty(
-       defaultValue = "!z%C*F-JaNdRgUkX",
-       editorType = PropertyTypeConstants.PROPERTY_TYPE_CHOICES)
+
        @SimpleProperty(description = "Sets the key for Encryption/Decryption")
        public void Key(String str){
         this.f_key = str;
@@ -142,12 +134,15 @@ public class FileCryptography extends AndroidNonvisibleComponent {
 
           File extStore = Environment.getExternalStorageDirectory();
 
+          FileInputStream fis;
+          FileOutputStream fos;
+
           if (!this.abs_path) {
-                 FileInputStream fis = new FileInputStream(extStore + ifile);
-                 FileOutputStream fos = new FileOutputStream(extStore + ofile);
+                 fis = new FileInputStream(extStore + ifile);
+                 fos = new FileOutputStream(extStore + ofile);
           } else {
-              FileInputStream fis = new FileInputStream(ifile);
-              FileOutputStream fos = new FileOutputStream(ofile);
+              fis = new FileInputStream(ifile);
+              fos = new FileOutputStream(ofile);
           }
           SecretKeySpec sks = new SecretKeySpec(okey.getBytes(),"AES");
           Cipher cipher = Cipher.getInstance("AES");
@@ -170,12 +165,15 @@ public class FileCryptography extends AndroidNonvisibleComponent {
 
           File extStore = Environment.getExternalStorageDirectory();
 
+          FileInputStream fis;
+          FileOutputStream fos;
+
           if (!this.abs_path) {
-              FileInputStream fis = new FileInputStream(extStore + ifile);
-              FileOutputStream fos = new FileOutputStream(extStore + ofile);
+              fis = new FileInputStream(extStore + ifile);
+              fos = new FileOutputStream(extStore + ofile);
           } else {
-              FileInputStream fis = new FileInputStream(ifile);
-              FileOutputStream fos = new FileOutputStream(ofile);
+              fis = new FileInputStream(ifile);
+              fos = new FileOutputStream(ofile);
           }
 
           SecretKeySpec sks = new SecretKeySpec(okey.getBytes(),"AES");
