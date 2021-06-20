@@ -4,14 +4,11 @@ import com.google.appinventor.components.annotations.*;
 import com.google.appinventor.components.common.ComponentCategory;
 import com.google.appinventor.components.common.PropertyTypeConstants;
 import com.google.appinventor.components.runtime.*;
+
 import android.os.Environment;
+
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import javax.crypto.spec.SecretKeySpec;
-import javax.crypto.Cipher;
-import javax.crypto.CipherOutputStream;
-import javax.crypto.CipherInputStream;
-import javax.crypto.NoSuchPaddingException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.io.FileInputStream;
@@ -19,14 +16,57 @@ import java.io.FileOutputStream;
 import java.io.File;
 import java.util.Arrays;
 
+import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.Cipher;
+import javax.crypto.CipherOutputStream;
+import javax.crypto.CipherInputStream;
+import javax.crypto.NoSuchPaddingException;
+
+
 
 
 
 public class FileCryptography extends AndroidNonvisibleComponent {
 
+       public boolean abs_path = false;
+       public String f_key = "!z%C*F-JaNdRgUkX" // Default Key to avoid Exception
+
 	public FileCryptography(ComponentContainer container) {
 	super(container.$form());
 	}
+
+
+       @SimpleProperty(description = "")
+       public boolean UseAbsolutePath(){
+           return this.abs_path;
+       }
+
+       @DesignerProperty(
+       defaultValue = false,
+       editorType = PropertyTypeConstants.PROPERTY_TYPE_BOOLEAN)
+       @SimpleProperty(description = "")
+       public void UseAbsolutePath(boolean abs){
+        this.abs_path = abs;
+       }
+
+       @SimpleProperty(description = "")
+       public boolean UseAbsolutePath(){
+           return this.abs_path;
+       }
+
+       @DesignerProperty(
+       defaultValue = "!z%C*F-JaNdRgUkX",
+       editorType = PropertyTypeConstants.PROPERTY_TYPE_CHOICES)
+       @SimpleProperty(description = "Sets the key for Encryption/Decryption")
+       public void Key(String str){
+        this.f_key = str;
+       }
+
+
+       @SimpleProperty(description = "Returns the current Encryption/Decryption Key")
+       public String Key(){
+        return this.f_key;
+       }
 
 
 	@SimpleEvent(description = "Event raised after encrypting the file.")
@@ -50,9 +90,9 @@ public class FileCryptography extends AndroidNonvisibleComponent {
 	}
 
 	@SimpleFunction(description = "Encrypts input file and save it as encrypted file using the provided key")
-	public void EncryptFile(String inputfile, String outputfile, String key) {
+	public void EncryptFile(String path, String output) {
        try {
-              encrypt(inputfile,outputfile,key);
+              encrypt(path,output,this.f_key);
        } catch (InvalidKeyException e) {
               e.printStackTrace();
               OnEncryptFail("InvalidKeyException",1);
@@ -69,10 +109,10 @@ public class FileCryptography extends AndroidNonvisibleComponent {
 	}
 
 	@SimpleFunction(description = "Decrypts input file and save it as decrypted file using the provided key")
-	public void DecryptFile(String inputfile, String outputfile, String key) {
+	public void DecryptFile(String path, String output) {
 
        try {
-              decrypt(inputfile,outputfile,key);
+              decrypt(path,output,this.f_key);
        } catch (InvalidKeyException e) {
               e.printStackTrace();
               OnDecryptFail("InvalidKeyException",1);
@@ -88,10 +128,8 @@ public class FileCryptography extends AndroidNonvisibleComponent {
        }
 	}
 
-/**
-    * Here is Both function for encrypt and decrypt file in Sdcard folder. we
-    * can not lock folder but we can encrypt file using AES in Android, it may
-    * help you.
+  /**
+    *
     *
     * @throws IOException
     * @throws NoSuchAlgorithmException
@@ -104,26 +142,22 @@ public class FileCryptography extends AndroidNonvisibleComponent {
 
           File extStore = Environment.getExternalStorageDirectory();
 
-          // Here you read the cleartext.
-          FileInputStream fis = new FileInputStream(extStore + ifile);
-          // This stream write the encrypted text. This stream will be wrapped by
-          // another stream.
-          FileOutputStream fos = new FileOutputStream(extStore + ofile);
-
-          // Length is 16 byte
+          if (!this.abs_path) {
+                 FileInputStream fis = new FileInputStream(extStore + ifile);
+                 FileOutputStream fos = new FileOutputStream(extStore + ofile);
+          } else {
+              FileInputStream fis = new FileInputStream(ifile);
+              FileOutputStream fos = new FileOutputStream(ofile);
+          }
           SecretKeySpec sks = new SecretKeySpec(okey.getBytes(),"AES");
-          // Create cipher
           Cipher cipher = Cipher.getInstance("AES");
           cipher.init(Cipher.ENCRYPT_MODE, sks);
-          // Wrap the output stream
           CipherOutputStream cos = new CipherOutputStream(fos, cipher);
-          // Write bytes
           int b;
           byte[] d = new byte[8];
           while ((b = fis.read(d)) != -1) {
                  cos.write(d, 0, b);
           }
-          // Flush and close streams.
           cos.flush();
           cos.close();
           fis.close();
@@ -136,9 +170,13 @@ public class FileCryptography extends AndroidNonvisibleComponent {
 
           File extStore = Environment.getExternalStorageDirectory();
 
-          FileInputStream fis = new FileInputStream(extStore + ifile);
-
-          FileOutputStream fos = new FileOutputStream(extStore + ofile);
+          if (!this.abs_path) {
+              FileInputStream fis = new FileInputStream(extStore + ifile);
+              FileOutputStream fos = new FileOutputStream(extStore + ofile);
+          } else {
+              FileInputStream fis = new FileInputStream(ifile);
+              FileOutputStream fos = new FileOutputStream(ofile);
+          }
 
           SecretKeySpec sks = new SecretKeySpec(okey.getBytes(),"AES");
           Cipher cipher = Cipher.getInstance("AES");
