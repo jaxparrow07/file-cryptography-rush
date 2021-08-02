@@ -39,24 +39,24 @@ public class FileCryptography extends AndroidNonvisibleComponent {
 	}
 
        @SimpleProperty(description = "")
-       public void setAbsolutePath(boolean abs){
+       public void UseAbsolutePath(boolean abs){
         this.abs_path = abs;
        }
 
        @SimpleProperty(description = "")
-       public boolean getAbsolutePath(){
+       public boolean UseAbsolutePath(){
            return this.abs_path;
        }
 
 
        @SimpleProperty(description = "Sets the key for Encryption/Decryption")
-       public void setKey(String str){
+       public void Key(String str){
         this.f_key = str;
        }
 
 
        @SimpleProperty(description = "Returns the current Encryption/Decryption Key")
-       public String getKey(){
+       public String Key(){
         return this.f_key;
        }
 
