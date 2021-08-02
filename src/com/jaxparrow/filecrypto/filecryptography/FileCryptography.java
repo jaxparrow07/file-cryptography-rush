@@ -71,32 +71,17 @@ public class FileCryptography extends AndroidNonvisibleComponent {
 	    EventDispatcher.dispatchEvent(this, "AfterDecrypt", inputfile,outputfile,key);
 	}
 
-	@SimpleEvent(description = "Event raised after encrypting failed.")
-	public void OnEncryptFail(String error, int code) {
-	    EventDispatcher.dispatchEvent(this, "OnEncryptFail", error,code);
-	}
-
-	@SimpleEvent(description = "Event raised after decrypting failed.")
-	public void OnDecryptFail(String error, int code) {
-	    EventDispatcher.dispatchEvent(this, "OnDecryptFail", error,code);
+	@SimpleEvent(description = "Event raised after decrypting/encypting is failed.")
+	public void OnFail(String error) {
+	    EventDispatcher.dispatchEvent(this, error);
 	}
 
 	@SimpleFunction(description = "Encrypts input file and save it as encrypted file using the provided key")
 	public void EncryptFile(String path, String output) {
        try {
-              encrypt(path,output,this.f_key);
-       } catch (InvalidKeyException e) {
-              e.printStackTrace();
-              OnEncryptFail("InvalidKeyException",1);
-       } catch (NoSuchAlgorithmException e) {
-              OnEncryptFail("NoSuchAlgorithmException",2);
-              e.printStackTrace();
-       } catch (NoSuchPaddingException e) {
-              OnEncryptFail("NoSuchPaddingException",3);
-              e.printStackTrace();
-       } catch (IOException e) {
-              OnEncryptFail("IOException",4);
-              e.printStackTrace();
+           encrypt(path,output,this.f_key);
+       } catch (Exception e){
+           OnFail(e.getLocalizedMessage());
        }
 	}
 
@@ -105,31 +90,15 @@ public class FileCryptography extends AndroidNonvisibleComponent {
 
        try {
               decrypt(path,output,this.f_key);
-       } catch (InvalidKeyException e) {
-              e.printStackTrace();
-              OnDecryptFail("InvalidKeyException",1);
-       } catch (NoSuchAlgorithmException e) {
-              OnDecryptFail("NoSuchAlgorithmException",2);
-              e.printStackTrace();
-       } catch (NoSuchPaddingException e) {
-              OnDecryptFail("NoSuchPaddingException",3);
-              e.printStackTrace();
-       } catch (IOException e) {
-              OnDecryptFail("IOException",4);
-              e.printStackTrace();
+       } catch (Exception e){
+           OnFail(e.getLocalizedMessage());
        }
 	}
 
   /**
-    *
-    *
-    * @throws IOException
-    * @throws NoSuchAlgorithmException
-    * @throws NoSuchPaddingException
-    * @throws InvalidKeyException
+    * @throws Exception
     */
-	public void encrypt(String ifile, String ofile, String okey) throws IOException, NoSuchAlgorithmException,
-                 NoSuchPaddingException, InvalidKeyException {
+	public void encrypt(String ifile, String ofile, String okey) throws Exception {
 
 
           File extStore = Environment.getExternalStorageDirectory();
@@ -160,8 +129,7 @@ public class FileCryptography extends AndroidNonvisibleComponent {
 
    }
 
-   public void decrypt(String ifile, String ofile, String okey) throws IOException, NoSuchAlgorithmException,
-                 NoSuchPaddingException, InvalidKeyException {
+   public void decrypt(String ifile, String ofile, String okey) throws Exception{
 
           File extStore = Environment.getExternalStorageDirectory();
 
